@@ -1,2 +1,4 @@
 venv/
 vqml_benchmarks.egg-info/
+others/
+results/

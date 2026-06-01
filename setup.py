@@ -17,6 +17,7 @@ setup(
         "pennylane",               # PennyLane library
         "pennylane-lightning",     # PennyLane lightning backend
         "pennylane-qiskit",        # PennyLane Qiskit plugin
+        "pennylane-catalyst",      # PennyLane Catalyst JIT compiler
         "autoray<0.8.0",
         
         # Math Utilities
