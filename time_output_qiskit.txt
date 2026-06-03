@@ -1,0 +1,22 @@
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:27: DeprecationWarning: The class ``qiskit.primitives.estimator.Estimator`` is deprecated as of qiskit 1.2. It will be removed no earlier than 3 months after the release date. All implementations of the `BaseEstimatorV1` interface have been deprecated in favor of their V2 counterparts. The V2 alternative for the `Estimator` class is `StatevectorEstimator`.
+  estimator = Estimator()
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:28: DeprecationWarning: V1 Primitives are deprecated as of qiskit-machine-learning 0.8.0 and will be removed no sooner than 4 months after the release date. Use V2 primitives for continued compatibility and support.
+  gradient = ParamShiftEstimatorGradient(estimator)
+      218.13 real       219.25 user         0.46 sys
+           525090816  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               37430  page reclaims
+                 875  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                 898  voluntary context switches
+               16965  involuntary context switches
+       3456295546614  instructions retired
+        827975401249  cycles elapsed
+           267502432  peak memory footprint

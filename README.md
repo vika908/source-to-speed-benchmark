@@ -1,43 +1,75 @@
-# Benchmark of Qiskit vs Pennylane with Quantum Machine Learning algorithms
-The two frameworks possess fundamentally different standard gradient estimation methods. Qiskit's native method for estimating the gradient relies on the parameter-shift rule, while PennyLane relies heavily on adjoint differentiation. These two methods calculate the derivative of the cost function in fundamentally different ways: the parameter-shift rule scales linearly $O(M)$ with respect to the number of parameters, whereas adjoint differentiation scaling remains $O(1)$. Therefore, the most critical architectural differences between these two frameworks are exposed in algorithms with massive parameter counts. (More details in the LaTeX paper).   Considering this, I chose to benchmark these frameworks using Quantum Machine Learning (QML). QML is a family of algorithms designed for model training and is part of the broader group of Variational Quantum Algorithms (VQAs). The primary reason for selecting this family is that QML architectures require thousands of parameters to achieve sufficient data expressivity, making it perfect for demonstrating the scaling differences between Qiskit and PennyLane.  
-In reality, a trained model is of no practical use if it remains as a logical circuit. One must deploy the model onto physical hardware to utilize it.
+# Benchmark of Qiskit vs PennyLane Gradient Pipelines
+
+This repository benchmarks gradient computation for quantum machine learning
+circuits. The experiment fixes the circuit width at four qubits and increases
+the number of variational parameters by changing the number of repeated
+EfficientSU2-style layers.
+
+The comparison focuses on three gradient pipelines:
+
+- Qiskit parameter-shift with `ParamShiftEstimatorGradient`
+- PennyLane `lightning.qubit` with adjoint differentiation
+- PennyLane `lightning.qubit` with parameter-shift differentiation
+
+The key distinction is that parameter-shift evaluates shifted circuits for each
+trainable parameter, while adjoint differentiation computes the gradient more
+directly for simulator-backed workflows. This makes the benchmark useful for
+showing how gradient method choice affects scaling as parameter count grows.
 
 ## Benchmark Scripts
 
-### `compilation.py`
-Benchmarks software compilation overhead as the number of qubits scales. For each qubit count, the script compares Qiskit's `transpile` against PennyLane Catalyst's `qjit`. It uses `REPS = 2` and tests 1, 4, 8, ..., 32 qubits.
-
-> [!NOTE]
-> Memory is measured using Python's `tracemalloc`, which captures Python heap allocations but does not fully account for native allocations in LLVM, MLIR, or C++ simulator backends. Therefore, memory results are interpreted as Python-level framework overhead rather than total process memory consumption.
-
-**Frameworks**: Qiskit vs. PennyLane (Catalyst)
-
-**Measured Metrics**:
-- **Compilation Time (s)**: Median wall time over five measured runs after two warm-up runs. Qiskit transpiles to the `rz`, `sx`, `x`, and `cx` basis gates with optimization level 1. Catalyst creates a `qjit` wrapper and invokes `jit_compile`.
-- **Python-Visible Peak Allocation (MB)**: Peak Python heap memory consumed during compilation. *Qiskit shows a small gradually increasing Python-level allocation, while Catalyst exhibits a larger but nearly constant Python-visible overhead. Because Catalyst relies on native compilation infrastructure, the reported memory is a lower bound and should not be interpreted as total compiler memory.*
-- **Circuit Depth**: Qiskit's depth is taken from the transpiled circuit. Catalyst's depth is read from PennyLane `qml.specs` before JIT compilation, so the two values describe different stages of their respective pipelines.
+These scripts run one gradient pipeline per process. They are the preferred
+targets for process-level memory measurements with macOS `/usr/bin/time -l`.
 
 Run with:
+
 ```bash
-python compilation.py
+/usr/bin/time -l venv/bin/python gradient_qiskit_param_shift.py 2> time_output_qiskit.txt
+/usr/bin/time -l venv/bin/python gradient_pennylane_adjoint.py 2> time_output_adjoint.txt
+/usr/bin/time -l venv/bin/python gradient_pennylane_param_shift.py 2> time_output_pennylane_parameter.txt
 ```
 
-Results are written to `clean3_compilation_fixed_structure.csv`.
+Outputs:
 
----
+- `gradient_qiskit_param_shift_results.csv`
+- `gradient_pennylane_adjoint_results.csv`
+- `gradient_pennylane_param_shift_results.csv`
+- `time_output_qiskit.txt`
+- `time_output_adjoint.txt`
+- `time_output_pennylane_parameter.txt`
 
-### `gradient.py`
-Benchmarks gradient computation as the number of parameters increases. The script fixes the circuit width at four qubits and tests 1, 10, 20, 40, 60, 80, and 100 repetitions. Qiskit uses `ParamShiftEstimatorGradient`, while PennyLane uses `lightning.qubit` with `diff_method="adjoint"`.
+Timing metrics in the CSV files:
 
-**Frameworks**: Qiskit (Parameter-Shift) vs. PennyLane (Adjoint AD)
+- `num_qubits`: fixed at four qubits
+- `reps`: number of repeated variational layers
+- `num_params`: total number of trainable parameters
+- `*_mean_s`: mean gradient computation time after warm-up
+- `*_std_s`: standard deviation of gradient computation time after warm-up
 
-**Measured Metrics**:
-- **Execution Time (s)**: Mean and standard deviation of the time taken for the gradient computation after warm-up.
-- **Peak RSS Increase (MB)**: Process resident-memory peak sampled during five measured gradient runs, minus a framework-specific baseline. Qiskit's baseline is taken after warm-up. PennyLane's baseline is taken before warm-up, so its value also includes any resident-memory growth caused by warm-up. This is process-level RSS rather than Python-only heap allocation.
+Memory metrics in the `/usr/bin/time -l` output files:
+
+- `maximum resident set size`: peak resident memory for the complete script process
+- `peak memory footprint`: macOS peak memory footprint for the complete script process
+- `real`, `user`, `sys`: wall-clock, user CPU, and system CPU time for the complete script process
+
+The memory values are process-level measurements for the whole script run,
+including imports, warm-up, all parameter-count cases, and CSV writing. They are
+not per-row memory measurements.
+
+## Plotting
+
+`plot.py` reads the three single-pipeline timing CSV files and the three
+`/usr/bin/time -l` output files from the repository root.
 
 Run with:
+
 ```bash
-python gradient.py
+venv/bin/python plot.py
 ```
 
-Results are written to `profile_compilation.csv`.
+Outputs:
+
+- `plots/gradient_time.png`: mean gradient time versus number of parameters, with standard-deviation error bars
+- `plots/gradient_memory.png`: process-level memory comparison from `/usr/bin/time -l`
+
+The plotting script only generates gradient benchmark graphs.
