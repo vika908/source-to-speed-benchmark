@@ -3,8 +3,8 @@ import time
 
 import numpy as np
 from qiskit.circuit.library import EfficientSU2
-from qiskit.primitives import Estimator
 from qiskit.quantum_info import SparsePauliOp
+from qiskit_aer.primitives import Estimator as AerEstimator
 from qiskit_machine_learning.gradients import ParamShiftEstimatorGradient
 
 
@@ -12,6 +12,7 @@ NUM_QUBITS = 4
 REP_SCALES = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 N_TRIALS = 5
 RESULTS_FILE = "gradient_qiskit_param_shift_results.csv"
+AER_BACKEND_OPTIONS = {"method": "statevector"}
 
 
 def make_params(reps):
@@ -24,7 +25,10 @@ def benchmark(num_qubits, reps, params, n_trials=N_TRIALS):
     ansatz = EfficientSU2(num_qubits, reps=reps, entanglement="linear")
     observable = SparsePauliOp.from_list([("Z" * num_qubits, 1)])
 
-    estimator = Estimator()
+    estimator = AerEstimator(
+        backend_options=AER_BACKEND_OPTIONS,
+        approximation=True,
+    )
     gradient = ParamShiftEstimatorGradient(estimator)
 
     _ = gradient.run([ansatz], [observable], [params]).result()

@@ -1,22 +1,64 @@
-/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:27: DeprecationWarning: The class ``qiskit.primitives.estimator.Estimator`` is deprecated as of qiskit 1.2. It will be removed no earlier than 3 months after the release date. All implementations of the `BaseEstimatorV1` interface have been deprecated in favor of their V2 counterparts. The V2 alternative for the `Estimator` class is `StatevectorEstimator`.
-  estimator = Estimator()
-/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:28: DeprecationWarning: V1 Primitives are deprecated as of qiskit-machine-learning 0.8.0 and will be removed no sooner than 4 months after the release date. Use V2 primitives for continued compatibility and support.
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:54: DeprecationWarning: Estimator has been deprecated as of Aer 0.15, please use EstimatorV2 instead.
+  mean_s, std_s = benchmark(NUM_QUBITS, reps, make_params(reps))
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:32: DeprecationWarning: V1 Primitives are deprecated as of qiskit-machine-learning 0.8.0 and will be removed no sooner than 4 months after the release date. Use V2 primitives for continued compatibility and support.
   gradient = ParamShiftEstimatorGradient(estimator)
-      913.42 real       913.16 user         0.99 sys
-          1047363584  maximum resident set size
+/Users/vika/Uni/source-to-speed-benchmark/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:54: DeprecationWarning: Estimator has been deprecated as of Aer 0.15, please use EstimatorV2 instead.
+  mean_s, std_s = benchmark(NUM_QUBITS, reps, make_params(reps))
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:32: DeprecationWarning: V1 Primitives are deprecated as of qiskit-machine-learning 0.8.0 and will be removed no sooner than 4 months after the release date. Use V2 primitives for continued compatibility and support.
+  gradient = ParamShiftEstimatorGradient(estimator)
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:54: DeprecationWarning: Estimator has been deprecated as of Aer 0.15, please use EstimatorV2 instead.
+  mean_s, std_s = benchmark(NUM_QUBITS, reps, make_params(reps))
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:32: DeprecationWarning: V1 Primitives are deprecated as of qiskit-machine-learning 0.8.0 and will be removed no sooner than 4 months after the release date. Use V2 primitives for continued compatibility and support.
+  gradient = ParamShiftEstimatorGradient(estimator)
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:54: DeprecationWarning: Estimator has been deprecated as of Aer 0.15, please use EstimatorV2 instead.
+  mean_s, std_s = benchmark(NUM_QUBITS, reps, make_params(reps))
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:32: DeprecationWarning: V1 Primitives are deprecated as of qiskit-machine-learning 0.8.0 and will be removed no sooner than 4 months after the release date. Use V2 primitives for continued compatibility and support.
+  gradient = ParamShiftEstimatorGradient(estimator)
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:54: DeprecationWarning: Estimator has been deprecated as of Aer 0.15, please use EstimatorV2 instead.
+  mean_s, std_s = benchmark(NUM_QUBITS, reps, make_params(reps))
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:32: DeprecationWarning: V1 Primitives are deprecated as of qiskit-machine-learning 0.8.0 and will be removed no sooner than 4 months after the release date. Use V2 primitives for continued compatibility and support.
+  gradient = ParamShiftEstimatorGradient(estimator)
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:54: DeprecationWarning: Estimator has been deprecated as of Aer 0.15, please use EstimatorV2 instead.
+  mean_s, std_s = benchmark(NUM_QUBITS, reps, make_params(reps))
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:32: DeprecationWarning: V1 Primitives are deprecated as of qiskit-machine-learning 0.8.0 and will be removed no sooner than 4 months after the release date. Use V2 primitives for continued compatibility and support.
+  gradient = ParamShiftEstimatorGradient(estimator)
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:54: DeprecationWarning: Estimator has been deprecated as of Aer 0.15, please use EstimatorV2 instead.
+  mean_s, std_s = benchmark(NUM_QUBITS, reps, make_params(reps))
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:32: DeprecationWarning: V1 Primitives are deprecated as of qiskit-machine-learning 0.8.0 and will be removed no sooner than 4 months after the release date. Use V2 primitives for continued compatibility and support.
+  gradient = ParamShiftEstimatorGradient(estimator)
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:54: DeprecationWarning: Estimator has been deprecated as of Aer 0.15, please use EstimatorV2 instead.
+  mean_s, std_s = benchmark(NUM_QUBITS, reps, make_params(reps))
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:32: DeprecationWarning: V1 Primitives are deprecated as of qiskit-machine-learning 0.8.0 and will be removed no sooner than 4 months after the release date. Use V2 primitives for continued compatibility and support.
+  gradient = ParamShiftEstimatorGradient(estimator)
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:54: DeprecationWarning: Estimator has been deprecated as of Aer 0.15, please use EstimatorV2 instead.
+  mean_s, std_s = benchmark(NUM_QUBITS, reps, make_params(reps))
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:32: DeprecationWarning: V1 Primitives are deprecated as of qiskit-machine-learning 0.8.0 and will be removed no sooner than 4 months after the release date. Use V2 primitives for continued compatibility and support.
+  gradient = ParamShiftEstimatorGradient(estimator)
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:54: DeprecationWarning: Estimator has been deprecated as of Aer 0.15, please use EstimatorV2 instead.
+  mean_s, std_s = benchmark(NUM_QUBITS, reps, make_params(reps))
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:32: DeprecationWarning: V1 Primitives are deprecated as of qiskit-machine-learning 0.8.0 and will be removed no sooner than 4 months after the release date. Use V2 primitives for continued compatibility and support.
+  gradient = ParamShiftEstimatorGradient(estimator)
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:54: DeprecationWarning: Estimator has been deprecated as of Aer 0.15, please use EstimatorV2 instead.
+  mean_s, std_s = benchmark(NUM_QUBITS, reps, make_params(reps))
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:32: DeprecationWarning: V1 Primitives are deprecated as of qiskit-machine-learning 0.8.0 and will be removed no sooner than 4 months after the release date. Use V2 primitives for continued compatibility and support.
+  gradient = ParamShiftEstimatorGradient(estimator)
+      173.96 real       176.37 user         1.24 sys
+          1606762496  maximum resident set size
                    0  average shared memory size
                    0  average unshared data size
                    0  average unshared stack size
-               99244  page reclaims
-                  17  page faults
+              152238  page reclaims
+                  27  page faults
                    0  swaps
                    0  block input operations
                    0  block output operations
                    0  messages sent
                    0  messages received
                    0  signals received
-                   2  voluntary context switches
-               33610  involuntary context switches
-      14393085782963  instructions retired
-       3448017135705  cycles elapsed
-           477938888  peak memory footprint
+                   4  voluntary context switches
+               11735  involuntary context switches
+       2784246576553  instructions retired
+        668008535620  cycles elapsed
+           696075752  peak memory footprint
