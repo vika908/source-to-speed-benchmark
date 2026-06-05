@@ -1,20 +1,20 @@
 /Users/vika/Uni/source-to-speed-benchmark/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
   warnings.warn(
-        2.41 real         4.33 user         0.25 sys
-           205963264  maximum resident set size
+        3.70 real         5.41 user         0.24 sys
+           209747968  maximum resident set size
                    0  average shared memory size
                    0  average unshared data size
                    0  average unshared stack size
-               25182  page reclaims
-                3522  page faults
+               25779  page reclaims
+                3161  page faults
                    0  swaps
                    0  block input operations
                    0  block output operations
                    0  messages sent
                    0  messages received
                    0  signals received
-                2814  voluntary context switches
-               11374  involuntary context switches
-         47136397780  instructions retired
-         15927142398  cycles elapsed
-           151946032  peak memory footprint
+                2505  voluntary context switches
+               10274  involuntary context switches
+         63319202202  instructions retired
+         20113380055  cycles elapsed
+           155763552  peak memory footprint

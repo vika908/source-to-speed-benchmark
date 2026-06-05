@@ -9,7 +9,7 @@ from qiskit_machine_learning.gradients import ParamShiftEstimatorGradient
 
 
 NUM_QUBITS = 4
-REP_SCALES = [1, 10, 20, 30, 40, 50, 60]
+REP_SCALES = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 N_TRIALS = 5
 RESULTS_FILE = "gradient_qiskit_param_shift_results.csv"
 

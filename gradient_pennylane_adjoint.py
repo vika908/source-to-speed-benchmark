@@ -7,7 +7,7 @@ from pennylane import numpy as pnp
 
 
 NUM_QUBITS = 4
-REP_SCALES = [1, 10, 20, 30, 40, 50, 60]
+REP_SCALES = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 N_TRIALS = 5
 DIFF_METHOD = "adjoint"
 RESULTS_FILE = "gradient_pennylane_adjoint_results.csv"
