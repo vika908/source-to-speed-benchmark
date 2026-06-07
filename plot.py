@@ -7,6 +7,9 @@ from pathlib import Path
 
 os.environ.setdefault("MPLCONFIGDIR", "/private/tmp/source-to-speed-matplotlib")
 
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
@@ -56,8 +59,14 @@ def load_timing_results(path, mean_column, std_column):
     if not path.exists():
         raise FileNotFoundError(f"Missing gradient timing results: {path}")
 
+    timing_lines = []
     with path.open(newline="") as f:
-        rows = list(csv.DictReader(f))
+        for line in f:
+            if not line.strip():
+                break
+            timing_lines.append(line)
+
+    rows = list(csv.DictReader(timing_lines))
 
     required = {"num_params", mean_column, std_column}
     missing = required - set(rows[0].keys()) if rows else required
