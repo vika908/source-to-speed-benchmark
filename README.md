@@ -16,6 +16,69 @@ trainable parameter, while adjoint differentiation computes the gradient more
 directly for simulator-backed workflows. This makes the benchmark useful for
 showing how gradient method choice affects scaling as parameter count grows.
 
+## Circuit Equivalence and Validation
+
+All three benchmark configurations use a four-qubit variational circuit with
+`RY` and `RZ` rotations on each qubit, followed by an open linear CNOT chain.
+For `reps = R`, the circuit has `R + 1` rotation layers and `R` entangling
+layers. Each entangling layer applies:
+
+```text
+CNOT(0, 1), CNOT(1, 2), CNOT(2, 3)
+```
+
+The chain is open, not circular; no `CNOT(3, 0)` is used. The observable is
+`Z^{\otimes 4}` in all configurations: PennyLane constructs it as a tensor
+product of `PauliZ` operators, and Qiskit uses `SparsePauliOp("ZZZZ")`.
+
+The PennyLane ansatz is written explicitly in
+`gradient_pennylane_param_shift.py` and `gradient_pennylane_adjoint.py`. Qiskit
+uses `EfficientSU2(num_qubits, reps=reps, entanglement="linear")`, so
+`gradient_qiskit_param_shift.py` validates the decomposed Qiskit circuit before
+timing starts. The function `validate_efficientsu2_structure(...)` checks that:
+
+- the decomposed circuit contains only `ry`, `rz`, and `cx` gates
+- each qubit has exactly `reps + 1` `RY` gates and `reps + 1` `RZ` gates
+- the only CNOT edges are nearest-neighbor linear edges
+- each expected edge, `(0, 1)`, `(1, 2)`, and `(2, 3)`, appears exactly `reps`
+  times
+
+This structural validation is part of the Qiskit benchmark code. It verifies
+the rotation-layer contents and open-chain entanglement pattern, but it does not
+by itself compare numerical expectation values or gradient entries.
+
+For a numerical equivalence check, run:
+
+```bash
+venv/bin/python validate_circuit_equivalence.py
+```
+
+This script compares Qiskit parameter-shift against the PennyLane
+parameter-shift circuit for small cases (`reps = 1` and `reps = 2` by default).
+Because PennyLane stores parameters as interleaved `RY, RZ` pairs per qubit,
+while Qiskit groups all `RY` parameters before all `RZ` parameters within each
+rotation layer, the script applies a deterministic parameter-order mapping
+before comparison. It then checks:
+
+- equality of expectation values for `Z^{\otimes 4}`
+- equality of gradient-vector length, expected to be `2 * NUM_QUBITS * (reps + 1)`
+- maximum absolute difference between corresponding gradient entries
+
+The default tolerance is `1e-10`. On the recorded validation run, the output was:
+
+```text
+Reps   | Params   | Exp diff     | Grad len | Grad max diff
+----------------------------------------------------------------
+1      | 16       | 1.110e-16    | 16       | 1.665e-16
+2      | 24       | 1.110e-16    | 24       | 3.816e-16
+```
+
+Additional repetition counts can be checked with, for example:
+
+```bash
+venv/bin/python validate_circuit_equivalence.py --reps 1 2 3 --tolerance 1e-10
+```
+
 ## Benchmark Scripts
 
 These scripts run one gradient pipeline per process. They are the preferred
