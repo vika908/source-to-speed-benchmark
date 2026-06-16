@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="vqml_benchmarks",
     version="0.1.0",
-    description="Benchmarking Qiskit vs PennyLane for VQML Training and Deployment",
+    description="Benchmarking Qiskit vs PennyLane for VQML Gradient Computation",
     author="Viktoriia Hrodetska",
     packages=find_packages(),
     install_requires=[
