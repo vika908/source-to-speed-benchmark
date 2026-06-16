@@ -1,9 +1,6 @@
 # Benchmark of Qiskit vs PennyLane Gradient Pipelines
 
-This repository benchmarks gradient computation for quantum machine learning
-circuits. The experiment fixes the circuit width at four qubits and increases
-the number of variational parameters by changing the number of repeated
-EfficientSU2-style layers.
+This repository benchmarks gradient computation for quantum machine learning circuits. The experiment fixes the circuit width at four qubits and increases the number of variational parameters by changing the number of repeated EfficientSU2 style layers.
 
 The comparison focuses on three gradient pipelines:
 
@@ -11,41 +8,28 @@ The comparison focuses on three gradient pipelines:
 - PennyLane `lightning.qubit` with adjoint differentiation
 - PennyLane `lightning.qubit` with parameter-shift differentiation
 
-The key distinction is that parameter-shift evaluates shifted circuits for each
-trainable parameter, while adjoint differentiation computes the gradient more
-directly for simulator-backed workflows. This makes the benchmark useful for
-showing how gradient method choice affects scaling as parameter count grows.
+The key distinction is that parameter-shift evaluates shifted circuits for each trainable parameter, while adjoint differentiation computes the gradient more directly for simulator-backed workflows. This makes the benchmark useful for showing how gradient method choice affects scaling as parameter count grows.
 
 ## Circuit Equivalence and Validation
 
-All three benchmark configurations use a four-qubit variational circuit with
-`RY` and `RZ` rotations on each qubit, followed by an open linear CNOT chain.
-For `reps = R`, the circuit has `R + 1` rotation layers and `R` entangling
-layers. Each entangling layer applies:
+All three benchmark configurations use a four-qubit variational circuit with `RY` and `RZ` rotations on each qubit, followed by an open linear CNOT chain.
+For `reps = R`, the circuit has `R + 1` rotation layers and `R` entangling layers. Each entangling layer applies:
 
 ```text
 CNOT(0, 1), CNOT(1, 2), CNOT(2, 3)
 ```
 
-The chain is open, not circular; no `CNOT(3, 0)` is used. The observable is
-`Z^{\otimes 4}` in all configurations: PennyLane constructs it as a tensor
-product of `PauliZ` operators, and Qiskit uses `SparsePauliOp("ZZZZ")`.
+The chain is open, not circular; no `CNOT(3, 0)` is used. The observable is `Z^{\otimes 4}` in all configurations: PennyLane constructs it as a tensor product of `PauliZ` operators, and Qiskit uses `SparsePauliOp("ZZZZ")`.
 
-The PennyLane ansatz is written explicitly in
-`gradient_pennylane_param_shift.py` and `gradient_pennylane_adjoint.py`. Qiskit
-uses `EfficientSU2(num_qubits, reps=reps, entanglement="linear")`, so
-`gradient_qiskit_param_shift.py` validates the decomposed Qiskit circuit before
-timing starts. The function `validate_efficientsu2_structure(...)` checks that:
+The PennyLane ansatz is written explicitly in `gradient_pennylane_param_shift.py` and `gradient_pennylane_adjoint.py`. Qiskit uses `EfficientSU2(num_qubits, reps=reps, entanglement="linear")`, so `gradient_qiskit_param_shift.py` validates the decomposed Qiskit circuit before timing starts. The function `validate_efficientsu2_structure(...)` checks that:
 
 - the decomposed circuit contains only `ry`, `rz`, and `cx` gates
 - each qubit has exactly `reps + 1` `RY` gates and `reps + 1` `RZ` gates
 - the only CNOT edges are nearest-neighbor linear edges
 - each expected edge, `(0, 1)`, `(1, 2)`, and `(2, 3)`, appears exactly `reps`
-  times
+times
 
-This structural validation is part of the Qiskit benchmark code. It verifies
-the rotation-layer contents and open-chain entanglement pattern, but it does not
-by itself compare numerical expectation values or gradient entries.
+This structural validation is part of the Qiskit benchmark code. It verifies the rotation-layer contents and open-chain entanglement pattern, but it does not by itself compare numerical expectation values or gradient entries.
 
 For a numerical equivalence check, run:
 
@@ -53,12 +37,8 @@ For a numerical equivalence check, run:
 venv/bin/python validate_circuit_equivalence.py
 ```
 
-This script compares Qiskit parameter-shift against the PennyLane
-parameter-shift circuit for small cases (`reps = 1` and `reps = 2` by default).
-Because PennyLane stores parameters as interleaved `RY, RZ` pairs per qubit,
-while Qiskit groups all `RY` parameters before all `RZ` parameters within each
-rotation layer, the script applies a deterministic parameter-order mapping
-before comparison. It then checks:
+This script compares Qiskit parameter-shift against the PennyLane parameter-shift circuit for small cases (`reps = 1` and `reps = 2` by default). Because PennyLane stores parameters as interleaved `RY, RZ` pairs per qubit,
+while Qiskit groups all `RY` parameters before all `RZ` parameters within each rotation layer, the script applies a deterministic parameter-order mapping before comparison. It then checks:
 
 - equality of expectation values for `Z^{\otimes 4}`
 - equality of gradient-vector length, expected to be `2 * NUM_QUBITS * (reps + 1)`
@@ -115,14 +95,11 @@ Memory metrics in the `/usr/bin/time -l` output files:
 - `peak memory footprint`: macOS peak memory footprint for the complete script process
 - `real`, `user`, `sys`: wall-clock, user CPU, and system CPU time for the complete script process
 
-The memory values are process-level measurements for the whole script run,
-including imports, warm-up, all parameter-count cases, and CSV writing. They are
-not per-row memory measurements.
+The memory values are process-level measurements for the whole script run, including imports, warm-up, all parameter count cases, and CSV writing. They are not per-row memory measurements.
 
 ## Plotting
 
-`plot.py` reads the three single-pipeline timing CSV files and the three
-`/usr/bin/time -l` output files from the repository root.
+`plot.py` reads the three single-pipeline timing CSV files and the three `/usr/bin/time -l` output files from the repository root.
 
 Run with:
 
