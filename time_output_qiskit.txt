@@ -1,0 +1,20 @@
+/Users/vika/Uni/source-to-speed-benchmark/gradient_qiskit_param_shift.py:69: DeprecationWarning: The class ``qiskit.circuit.library.n_local.efficient_su2.EfficientSU2`` is deprecated as of Qiskit 2.1. It will be removed in Qiskit 3.0. Use the function qiskit.circuit.library.efficient_su2 instead.
+  ansatz = EfficientSU2(num_qubits, reps=reps, entanglement="linear")
+       32.88 real        31.79 user         0.65 sys
+          1536524288  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              114832  page reclaims
+                2345  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                2322  voluntary context switches
+                3848  involuntary context switches
+        552630629268  instructions retired
+        122518934651  cycles elapsed
+           919619216  peak memory footprint

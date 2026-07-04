@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 
 ROOT = Path(__file__).resolve().parent
-OUTPUT_DIR = ROOT / "plots"
+OUTPUT_DIR = ROOT / "plot"
 
 TIMING_FILES = {
     "Qiskit parameter-shift": (
@@ -35,9 +35,9 @@ TIMING_FILES = {
 }
 
 MEMORY_FILES = {
-    "Qiskit parameter-shift": ROOT / "time_qiskit_param_shift.txt",
-    "PennyLane adjoint": ROOT / "time_pennylane_adjoint.txt",
-    "PennyLane parameter-shift": ROOT / "time_pennylane_param_shift.txt",
+    "Qiskit parameter-shift": ROOT / "time_output_qiskit.txt",
+    "PennyLane adjoint": ROOT / "time_output_adjoint.txt",
+    "PennyLane parameter-shift": ROOT / "time_output_pennylane_parameter.txt",
 }
 
 COLORS = {

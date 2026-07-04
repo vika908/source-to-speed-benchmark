@@ -2,3 +2,6 @@ venv/
 vqml_benchmarks.egg-info/
 others/
 results/
+venv_new/
+venv_2/
+__pycache__/

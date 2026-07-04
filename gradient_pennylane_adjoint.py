@@ -56,7 +56,7 @@ def benchmark(num_qubits, reps, params, n_trials=N_TRIALS):
         _ = grad_fn(params)
         times.append(time.perf_counter() - start)
 
-    return float(np.mean(times)), float(np.std(times))
+    return float(np.mean(times)), float(np.std(times, ddof=1))
 
 
 if __name__ == "__main__":

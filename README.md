@@ -10,6 +10,18 @@ The comparison focuses on three gradient pipelines:
 
 The key distinction is that parameter-shift evaluates shifted circuits for each trainable parameter, while adjoint differentiation computes the gradient more directly for simulator-backed workflows. This makes the benchmark useful for showing how gradient method choice affects scaling as parameter count grows.
 
+## Setup
+
+Install the dependencies from `requirements.txt` into a local virtual environment:
+
+```bash
+python3 -m venv venv
+venv/bin/python -m pip install --upgrade pip
+venv/bin/python -m pip install -r requirements.txt
+```
+
+All Python commands below assume this local `venv`.
+
 ## Circuit Equivalence and Validation
 
 All three benchmark configurations use a four-qubit variational circuit with `RY` and `RZ` rotations on each qubit, followed by an open linear CNOT chain.
@@ -21,13 +33,12 @@ CNOT(0, 1), CNOT(1, 2), CNOT(2, 3)
 
 The chain is open, not circular; no `CNOT(3, 0)` is used. The observable is `Z^{\otimes 4}` in all configurations: PennyLane constructs it as a tensor product of `PauliZ` operators, and Qiskit uses `SparsePauliOp("ZZZZ")`.
 
-The PennyLane ansatz is written explicitly in `gradient_pennylane_param_shift.py` and `gradient_pennylane_adjoint.py`. Qiskit uses `EfficientSU2(num_qubits, reps=reps, entanglement="linear")`, so `gradient_qiskit_param_shift.py` validates the decomposed Qiskit circuit before timing starts. The function `validate_efficientsu2_structure(...)` checks that:
+The PennyLane ansatz is written explicitly in `gradient_pennylane_param_shift.py` and `gradient_pennylane_adjoint.py`. Qiskit uses `efficient_su2(...)` with `su2_gates=["ry", "rz"]`, `entanglement="linear"`, and `skip_final_rotation_layer=False`, so `gradient_qiskit_param_shift.py` validates the decomposed Qiskit circuit before timing starts. The function `validate_efficientsu2_structure(...)` checks that:
 
 - the decomposed circuit contains only `ry`, `rz`, and `cx` gates
 - each qubit has exactly `reps + 1` `RY` gates and `reps + 1` `RZ` gates
 - the only CNOT edges are nearest-neighbor linear edges
-- each expected edge, `(0, 1)`, `(1, 2)`, and `(2, 3)`, appears exactly `reps`
-times
+- each expected edge, `(0, 1)`, `(1, 2)`, and `(2, 3)`, appears exactly `reps` times
 
 This structural validation is part of the Qiskit benchmark code. It verifies the rotation-layer contents and open-chain entanglement pattern, but it does not by itself compare numerical expectation values or gradient entries.
 
@@ -63,6 +74,8 @@ venv/bin/python validate_circuit_equivalence.py --reps 1 2 3 --tolerance 1e-10
 
 These scripts run one gradient pipeline per process. They are the preferred
 targets for process-level memory measurements with macOS `/usr/bin/time -l`.
+Each script benchmarks `reps = 1, 10, 20, ..., 100`, with one warm-up gradient
+evaluation followed by five timed gradient evaluations per repetition count.
 
 Run with:
 
@@ -109,7 +122,7 @@ venv/bin/python plot.py
 
 Outputs:
 
-- `plots/gradient_time.png`: mean gradient time versus number of parameters, with standard-deviation error bars
-- `plots/gradient_memory.png`: process-level memory comparison from `/usr/bin/time -l`
+- `plot/gradient_time.png`: mean gradient time versus number of parameters, with standard-deviation error bars
+- `plot/gradient_memory.png`: process-level memory comparison from `/usr/bin/time -l`
 
 The plotting script only generates gradient benchmark graphs.

@@ -11,20 +11,41 @@ warnings.filterwarnings("ignore", message="urllib3 v2 only supports OpenSSL.*")
 import numpy as np
 import pennylane as qml
 from pennylane import numpy as pnp
-from qiskit.circuit.library import EfficientSU2
 from qiskit.quantum_info import SparsePauliOp
-from qiskit_aer.primitives import EstimatorV2
-from qiskit_machine_learning.gradients import ParamShiftEstimatorGradient
+from qiskit_aer.primitives import EstimatorV2 as AerEstimatorV2
+from qiskit_algorithms.gradients import ParamShiftEstimatorGradient
 
-from gradient_qiskit_param_shift import (
-    AER_ESTIMATOR_OPTIONS,
-    NUM_QUBITS,
-    validate_efficientsu2_structure,
-)
+try:
+    from qiskit.circuit.library import efficient_su2
+except ImportError:
+    from qiskit.circuit.library import EfficientSU2
+
+    def efficient_su2(
+        num_qubits,
+        su2_gates,
+        entanglement,
+        reps,
+        skip_final_rotation_layer,
+        skip_unentangled_qubits,
+        insert_barriers,
+    ):
+        if su2_gates != ["ry", "rz"]:
+            raise ValueError(f"Unsupported SU2 gate set: {su2_gates}")
+        return EfficientSU2(
+            num_qubits,
+            reps=reps,
+            entanglement=entanglement,
+            skip_final_rotation_layer=skip_final_rotation_layer,
+            skip_unentangled_qubits=skip_unentangled_qubits,
+            insert_barriers=insert_barriers,
+        )
 
 
+NUM_QUBITS = 4
 DEFAULT_REPS = [1, 2]
 DEFAULT_TOLERANCE = 1e-10
+ROTATION_GATES = {"ry", "rz"}
+ENTANGLING_GATE = "cx"
 
 
 def make_pennylane_circuit(num_qubits, reps, diff_method):
@@ -91,6 +112,49 @@ def qiskit_to_pennylane_gradient(gradient, num_qubits, reps):
     return np.array(pennylane_gradient)
 
 
+def validate_efficientsu2_structure(ansatz, num_qubits, reps):
+    allowed_gates = ROTATION_GATES | {ENTANGLING_GATE}
+    rotation_counts = {}
+    entangling_edges = []
+
+    for instruction in ansatz.data:
+        gate_name = instruction.operation.name
+        qubits = tuple(ansatz.find_bit(qubit).index for qubit in instruction.qubits)
+
+        if gate_name not in allowed_gates:
+            raise ValueError(f"Unexpected gate in ansatz: {gate_name}")
+
+        if gate_name in ROTATION_GATES:
+            if len(qubits) != 1:
+                raise ValueError(f"{gate_name} gate is not single-qubit: {qubits}")
+            rotation_counts[(gate_name, qubits[0])] = (
+                rotation_counts.get((gate_name, qubits[0]), 0) + 1
+            )
+        else:
+            entangling_edges.append(qubits)
+
+    expected_rotation_count = reps + 1
+    for gate_name in ROTATION_GATES:
+        for qubit in range(num_qubits):
+            actual_count = rotation_counts.get((gate_name, qubit), 0)
+            if actual_count != expected_rotation_count:
+                raise ValueError(
+                    f"Expected {expected_rotation_count} {gate_name} gates on qubit "
+                    f"{qubit}, found {actual_count}"
+                )
+
+    expected_edges = [
+        (control, control + 1)
+        for _ in range(reps)
+        for control in range(num_qubits - 1)
+    ]
+    if entangling_edges != expected_edges:
+        raise ValueError(
+            "Ansatz does not match the expected linear CNOT pattern: "
+            f"expected {expected_edges}, found {entangling_edges}"
+        )
+
+
 def validate_case(reps, tolerance):
     num_params = 2 * NUM_QUBITS * (reps + 1)
     rng = np.random.default_rng(42 + reps)
@@ -104,11 +168,23 @@ def validate_case(reps, tolerance):
     pennylane_expval = float(pennylane_circuit(pennylane_params_grad))
     pennylane_gradient = np.array(qml.grad(pennylane_circuit)(pennylane_params_grad))
 
-    qiskit_ansatz = EfficientSU2(NUM_QUBITS, reps=reps, entanglement="linear")
+    qiskit_ansatz = efficient_su2(
+        NUM_QUBITS,
+        su2_gates=["ry", "rz"],
+        entanglement="linear",
+        reps=reps,
+        skip_final_rotation_layer=False,
+        skip_unentangled_qubits=False,
+        insert_barriers=False,
+    )
     validate_efficientsu2_structure(qiskit_ansatz, NUM_QUBITS, reps)
-    qiskit_ansatz = qiskit_ansatz.decompose()
     observable = SparsePauliOp.from_list([("Z" * NUM_QUBITS, 1)])
-    estimator = EstimatorV2(options=AER_ESTIMATOR_OPTIONS)
+    estimator = AerEstimatorV2(
+        options={
+            "backend_options": {"method": "statevector"},
+            "run_options": {"shots": None},
+        }
+    )
 
     qiskit_expval = float(
         estimator.run([(qiskit_ansatz, observable, qiskit_params)]).result()[0].data.evs

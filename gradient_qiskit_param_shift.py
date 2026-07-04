@@ -3,29 +3,25 @@ import time
 from collections import Counter
 
 import numpy as np
-from qiskit.circuit.library import EfficientSU2
+from qiskit.circuit.library import efficient_su2
 from qiskit.quantum_info import SparsePauliOp
-from qiskit_aer.primitives import EstimatorV2 as AerEstimator
-from qiskit_machine_learning.gradients import ParamShiftEstimatorGradient
+from qiskit_aer.primitives import EstimatorV2 as AerEstimatorV2
+from qiskit_algorithms.gradients import ParamShiftEstimatorGradient
 
 
 NUM_QUBITS = 4
 REP_SCALES = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 N_TRIALS = 5
 RESULTS_FILE = "gradient_qiskit_param_shift_results.csv"
-AER_ESTIMATOR_OPTIONS = {
-    "backend_options": {"method": "statevector"},
-    "default_precision": 0.0,
-}
+
 ROTATION_GATES = {"ry", "rz"}
 ENTANGLING_GATE = "cx"
 
 
 def make_params(reps):
     num_params = (reps + 1) * NUM_QUBITS * 2
-    np.random.seed(42)
-    return np.random.uniform(-np.pi, np.pi, num_params)
-
+    rng = np.random.default_rng(42)
+    return rng.uniform(-np.pi, np.pi, num_params)
 
 def validate_efficientsu2_structure(ansatz, num_qubits, reps):
     decomposed = ansatz.decompose()
@@ -70,22 +66,49 @@ def validate_efficientsu2_structure(ansatz, num_qubits, reps):
 
 
 def benchmark(num_qubits, reps, params, n_trials=N_TRIALS):
-    ansatz = EfficientSU2(num_qubits, reps=reps, entanglement="linear")
+    ansatz = efficient_su2(
+        num_qubits,
+        su2_gates=["ry", "rz"],
+        entanglement="linear",
+        reps=reps,
+        skip_final_rotation_layer=False,
+        skip_unentangled_qubits=False,
+        insert_barriers=False,
+    )
     validate_efficientsu2_structure(ansatz, num_qubits, reps)
-    observable = SparsePauliOp.from_list([("Z" * num_qubits, 1)])
 
-    estimator = AerEstimator(options=AER_ESTIMATOR_OPTIONS)
+    observable = SparsePauliOp.from_list([("Z" * num_qubits, 1.0)])
+
+    estimator = AerEstimatorV2(
+        options={
+            "backend_options": {"method": "statevector"},
+            "run_options": {"shots": None},
+        }
+    )
+
     gradient = ParamShiftEstimatorGradient(estimator)
 
-    _ = gradient.run([ansatz], [observable], [params]).result()
+    # Warm-up
+    gradient.run(
+        circuits=[ansatz],
+        observables=[observable],
+        parameter_values=[params],
+    ).result()
 
     times = []
+
     for _ in range(n_trials):
         start = time.perf_counter()
-        _ = gradient.run([ansatz], [observable], [params]).result()
+
+        gradient.run(
+            circuits=[ansatz],
+            observables=[observable],
+            parameter_values=[params],
+        ).result()
+
         times.append(time.perf_counter() - start)
 
-    return float(np.mean(times)), float(np.std(times))
+    return float(np.mean(times)), float(np.std(times, ddof=1))
 
 
 if __name__ == "__main__":
