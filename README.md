@@ -10,6 +10,9 @@ The comparison focuses on three gradient pipelines:
 
 The key distinction is that parameter-shift evaluates shifted circuits for each trainable parameter, while adjoint differentiation computes the gradient more directly for simulator-backed workflows. This makes the benchmark useful for showing how gradient method choice affects scaling as parameter count grows.
 
+## Key findings
+The benchmark shows that the choice of differentiation method has a greater impact on gradient-computation performance than the framework choice alone in the tested statevector simulation setting. PennyLane's adjoint differentiation consistently achieved the lowest runtime and process-level memory usage. At 808 trainable parameters, it was 42.85× faster than Qiskit parameter-shift and 431.90× faster than PennyLane parameter-shift. While Qiskit parameter-shift was approximately 10× faster than PennyLane parameter-shift at the largest circuit size, both exhibited similar, approximately quadratic runtime growth as circuit depth and parameter count increased together. These findings highlight the efficiency of simulator-specific adjoint differentiation, while remaining limited to the tested four-qubit, noiseless simulation setup.
+
 ## Setup
 
 Install the dependencies from `requirements.txt` into a local virtual environment:
